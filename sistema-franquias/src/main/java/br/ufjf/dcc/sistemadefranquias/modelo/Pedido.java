@@ -12,6 +12,7 @@ public class Pedido {
     private Map<Produto, Integer> produtosPedidos; 
     private double valorTotal;
     private String status; // Ex: "Pendente", "Confirmado", "Entregue", "Cancelado"
+    private Vendedor vendedor; 
 
     public Pedido(int id, Date dataPedido, Cliente cliente, double valorTotal, String status) {
         this.id = id;
@@ -48,6 +49,10 @@ public class Pedido {
         return status;
     }
 
+    public Vendedor getVendedor() {
+        return vendedor;
+    }
+
     // --- Setters ---
 
     public void setId(int id) {
@@ -72,5 +77,9 @@ public class Pedido {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public void setVendedor(Vendedor vendedor) {
+        this.vendedor = vendedor;
     }
 }
