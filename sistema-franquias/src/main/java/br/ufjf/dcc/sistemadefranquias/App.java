@@ -1,14 +1,14 @@
 // br/ufjf/dcc/sistemadefranquias/App.java
 package br.ufjf.dcc.sistemadefranquias;
 
-import java.io.IOException;
-
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-
+import br.ufjf.dcc.sistemadefranquias.controle.CargaDeDados; // 1. IMPORTAR A NOVA CLASSE
 import br.ufjf.dcc.sistemadefranquias.controle.Sistema;
 import br.ufjf.dcc.sistemadefranquias.persistencia.Persistencia;
 import br.ufjf.dcc.sistemadefranquias.visao.TelaLogin;
+import java.io.File; // Importar File
+import java.io.IOException;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 public class App {
     public static void main(String[] args) {
@@ -29,17 +29,25 @@ public class App {
         }));
     }
 
-     private static Sistema carregarOuCriarSistema() {
-        try {
-            System.out.println("Carregando dados existentes do arquivo de texto...");
-            return Persistencia.carregar();
-        } catch (IOException e) { // Apenas IOException é necessária agora
-            JOptionPane.showMessageDialog(null, "Erro ao ler arquivo de dados. Um novo sistema será criado.", "Erro de Leitura", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-            // Retorna um sistema novo em caso de erro de leitura
-            Sistema novoSistema = new Sistema();
-            // ... (criação do dono padrão)
-            return novoSistema;
+    private static Sistema carregarOuCriarSistema() {
+        // 2. MODIFICAR ESTE MÉTODO
+        File arquivoDeDados = new File(Persistencia.ARQUIVO_DADOS);
+
+        if (arquivoDeDados.exists()) {
+            // Se o arquivo existe, carrega os dados dele
+            try {
+                System.out.println("Arquivo de dados encontrado. Carregando sistema...");
+                return Persistencia.carregar();
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(null, "Erro ao ler arquivo de dados. Um novo sistema será criado.", "Erro de Leitura", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
         }
+        
+        // Se o arquivo NÃO existe (ou deu erro ao ler), cria um novo sistema e o popula
+        System.out.println("Arquivo de dados não encontrado. Criando um novo sistema com dados de teste...");
+        Sistema novoSistema = new Sistema();
+        CargaDeDados.popularSistemaComDadosIniciais(novoSistema); // <-- CHAMADA PARA A CARGA DE DADOS
+        return novoSistema;
     }
-    }
+}

@@ -1,0 +1,64 @@
+---USUARIOS---
+Vendedor;v6;Gabriel Oliveira;v6@franquia.com;123;1
+Vendedor;v7;Guilherme Martins;v7@franquia.com;123;1
+Vendedor;v8;Sofia Santos;v8@franquia.com;123;1
+Vendedor;v9;Helena Oliveira;v9@franquia.com;123;1
+Vendedor;v50;Felipe Rodrigues;v50@franquia.com;123;5
+Vendedor;v10;Rafael Martins;v10@franquia.com;123;1
+Vendedor;v12;Valentina Ribeiro;v12@franquia.com;123;2
+Vendedor;v11;Enzo Alves;v11@franquia.com;123;2
+Vendedor;v14;Bruno Pereira;v14@franquia.com;123;2
+Vendedor;v13;Rafael Gomes;v13@franquia.com;123;2
+Vendedor;v16;Lucas Lima;v16@franquia.com;123;2
+Vendedor;v15;Manuela Oliveira;v15@franquia.com;123;2
+Vendedor;v18;Lucas Lima;v18@franquia.com;123;2
+Vendedor;v17;Felipe Silva;v17@franquia.com;123;2
+Vendedor;v19;Alice Martins;v19@franquia.com;123;2
+Gerente;g1;Rafael Gomes;g1@franquia.com;123;1
+Gerente;g2;Enzo Martins;g2@franquia.com;123;2
+Gerente;g3;Mateus Oliveira;g3@franquia.com;123;3
+Gerente;g4;Rafael Melo;g4@franquia.com;123;4
+Gerente;g5;Pedro Rodrigues;g5@franquia.com;123;5
+Vendedor;v21;Manuela Barbosa;v21@franquia.com;123;3
+Vendedor;v20;Manuela Almeida;v20@franquia.com;123;2
+Vendedor;v23;Felipe Silva;v23@franquia.com;123;3
+Vendedor;v22;Livia Carvalho;v22@franquia.com;123;3
+Vendedor;v25;Valentina Martins;v25@franquia.com;123;3
+Vendedor;v24;Rafael Melo;v24@franquia.com;123;3
+Vendedor;v27;Lucas Santos;v27@franquia.com;123;3
+Vendedor;v26;Mateus Rodrigues;v26@franquia.com;123;3
+Vendedor;v29;Rafael Barbosa;v29@franquia.com;123;3
+Vendedor;v28;Laura Melo;v28@franquia.com;123;3
+Dono;admin;Dono Admin;admin@franquia.com;admin;
+Vendedor;v30;Helena Carvalho;v30@franquia.com;123;3
+Vendedor;v32;Alice Martins;v32@franquia.com;123;4
+Vendedor;v31;Laura Carvalho;v31@franquia.com;123;4
+Vendedor;v34;Enzo Alves;v34@franquia.com;123;4
+Vendedor;v33;Alice Melo;v33@franquia.com;123;4
+Vendedor;v36;Bruno Melo;v36@franquia.com;123;4
+Vendedor;v35;Mariana Ribeiro;v35@franquia.com;123;4
+Vendedor;v38;Rafael Souza;v38@franquia.com;123;4
+Vendedor;v37;Enzo Alves;v37@franquia.com;123;4
+Vendedor;v39;Gabriel Martins;v39@franquia.com;123;4
+Vendedor;v41;Helena Carvalho;v41@franquia.com;123;5
+Vendedor;v40;Guilherme Martins;v40@franquia.com;123;4
+Vendedor;v43;Sofia Almeida;v43@franquia.com;123;5
+Vendedor;v42;Bruno Souza;v42@franquia.com;123;5
+Vendedor;v45;Bruno Carvalho;v45@franquia.com;123;5
+Vendedor;v44;Valentina Pereira;v44@franquia.com;123;5
+Vendedor;v47;Helena Souza;v47@franquia.com;123;5
+Vendedor;v46;Lucas Alves;v46@franquia.com;123;5
+Vendedor;v49;Mariana Barbosa;v49@franquia.com;123;5
+Vendedor;v1;Enzo Barbosa;v1@franquia.com;123;1
+Vendedor;v48;Livia Santos;v48@franquia.com;123;5
+Vendedor;v2;Isabela Ferreira;v2@franquia.com;123;1
+Vendedor;v3;Mariana Gomes;v3@franquia.com;123;1
+Vendedor;v4;Julia Oliveira;v4@franquia.com;123;1
+Vendedor;v5;Laura Alves;v5@franquia.com;123;1
+---FRANQUIAS---
+1;Franquia Sudeste - SP;g1
+2;Franquia Litorânea - RJ;g2
+3;Franquia Central - MG;g3
+4;Franquia Nordeste - BA;g4
+5;Franquia Local - JF;g5
+---FIM---
