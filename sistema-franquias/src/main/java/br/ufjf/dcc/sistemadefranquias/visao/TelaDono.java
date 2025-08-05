@@ -1,16 +1,34 @@
 // br/ufjf/dcc/sistemadefranquias/visao/TelaDono.java
 package br.ufjf.dcc.sistemadefranquias.visao;
 
-import br.ufjf.dcc.sistemadefranquias.controle.Sistema;
-import br.ufjf.dcc.sistemadefranquias.excecoes.ValidacaoException;
-import br.ufjf.dcc.sistemadefranquias.modelo.*;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import br.ufjf.dcc.sistemadefranquias.controle.Sistema;
+import br.ufjf.dcc.sistemadefranquias.excecoes.ValidacaoException;
+import br.ufjf.dcc.sistemadefranquias.modelo.Dono;
+import br.ufjf.dcc.sistemadefranquias.modelo.Endereco;
+import br.ufjf.dcc.sistemadefranquias.modelo.Franquia;
+import br.ufjf.dcc.sistemadefranquias.modelo.Gerente;
+import br.ufjf.dcc.sistemadefranquias.modelo.Pedido;
+import br.ufjf.dcc.sistemadefranquias.modelo.Vendedor;
 
 public class TelaDono extends JFrame {
     private Sistema sistema;
@@ -20,34 +38,30 @@ public class TelaDono extends JFrame {
         this.sistema = sistema;
         this.dono = dono;
         setTitle("Painel do Dono: " + dono.getNome());
-        setSize(500, 400);
+        setSize(650, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JPanel painel = new JPanel(new GridLayout(0, 2, 10, 10));
-        painel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel painel = new JPanel(new GridLayout(10, 2, 15, 10));
+        painel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
 
         // Botões de Franquias
-        painel.add(new JLabel("<html><b>--- Gestão de Franquias ---</b></html>"));
-        painel.add(new JLabel(""));
         JButton btnCadastrarFranquia = new JButton("Cadastrar Franquia");
         JButton btnRemoverFranquia = new JButton("Remover Franquia");
         JButton btnListarFranquias = new JButton("Listar Franquias");
         JButton btnVerDesempenho = new JButton("Desempenho das Franquias");
 
         // Botões de Gerentes
-        painel.add(new JLabel("<html><b>--- Gestão de Gerentes ---</b></html>"));
-        painel.add(new JLabel(""));
         JButton btnCadastrarGerente = new JButton("Cadastrar Gerente");
         JButton btnRemoverGerente = new JButton("Remover Gerente");
 
-        // Botões de Relatórios
-        painel.add(new JLabel("<html><b>--- Relatórios ---</b></html>"));
-        painel.add(new JLabel(""));
-        JButton btnRankingVendedores = new JButton("Ranking de Vendedores");
+        // Botão de Relatórios
+        JButton btnRankingVendedores = new JButton("Ranking de Vendedores (Faturamento)");
+        JButton btnRankingQuantidade = new JButton("Ranking de Vendedores (Quantidade)");
 
         // Botão de Sair
         JButton btnSair = new JButton("Sair");
+        btnSair.setFont(new Font("Arial", Font.BOLD, 12));
 
         // Adicionando Actions
         btnCadastrarFranquia.addActionListener(e -> abrirDialogCadastroFranquia());
@@ -57,22 +71,47 @@ public class TelaDono extends JFrame {
         btnCadastrarGerente.addActionListener(e -> abrirDialogCadastroGerente());
         btnRemoverGerente.addActionListener(e -> removerGerente());
         btnRankingVendedores.addActionListener(e -> exibirRankingVendedores());
+        btnRankingQuantidade.addActionListener(e -> exibirRankingVendedoresPorQuantidade());
         btnSair.addActionListener(e -> {
             new TelaLogin(sistema);
             dispose();
         });
 
+        // Título da seção Franquias
+        JLabel lblFranquias = new JLabel("<html><b><font size='4'>--- Gestão de Franquias ---</font></b></html>");
+        lblFranquias.setFont(new Font("Arial", Font.BOLD, 14));
+        painel.add(lblFranquias);
+        painel.add(new JLabel(""));
 
-        // Adicionando ao painel
+        // Adicionando botões de Franquias
         painel.add(btnCadastrarFranquia);
         painel.add(btnRemoverFranquia);
         painel.add(btnListarFranquias);
         painel.add(btnVerDesempenho);
+
+        // Título da seção Gerentes
+        JLabel lblGerentes = new JLabel("<html><b><font size='4'>--- Gestão de Gerentes ---</font></b></html>");
+        lblGerentes.setFont(new Font("Arial", Font.BOLD, 14));
+        painel.add(lblGerentes);
+        painel.add(new JLabel(""));
+
+        // Adicionando botões de Gerentes
         painel.add(btnCadastrarGerente);
         painel.add(btnRemoverGerente);
-        painel.add(btnRankingVendedores);
-        painel.add(btnSair);
 
+        // Título da seção Relatórios
+        JLabel lblRelatorios = new JLabel("<html><b><font size='4'>--- Relatórios ---</font></b></html>");
+        lblRelatorios.setFont(new Font("Arial", Font.BOLD, 14));
+        painel.add(lblRelatorios);
+        painel.add(new JLabel(""));
+
+        // Adicionando botão de Relatórios
+        painel.add(btnRankingVendedores);
+        painel.add(btnRankingQuantidade);
+
+        // Botão de Sair
+        painel.add(btnSair);
+        painel.add(new JLabel(""));
 
         add(painel);
         setVisible(true);
@@ -95,11 +134,13 @@ public class TelaDono extends JFrame {
     }
 
     private void abrirDialogCadastroFranquia() {
-        // Implementação já existente, mantida
         JDialog dialog = new JDialog(this, "Nova Franquia", true);
-        dialog.setSize(400, 400);
-        dialog.setLayout(new GridLayout(10, 2, 10, 10));
+        dialog.setSize(450, 450);
         dialog.setLocationRelativeTo(this);
+
+        // Adicionando padding ao dialog
+        JPanel painelPrincipal = new JPanel(new GridLayout(11, 2, 10, 10));
+        painelPrincipal.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JTextField campoNome = new JTextField();
         JTextField campoRua = new JTextField();
@@ -117,21 +158,44 @@ public class TelaDono extends JFrame {
                 .forEach(g -> comboGerentes.addItem(g.getNome() + " (" + g.getCpf() + ")"));
         comboGerentes.addItem("Nenhum (cadastrar depois)");
 
-
+        JButton btnCancelar = new JButton("Cancelar");
         JButton btnCadastrar = new JButton("Cadastrar");
+        
+        btnCancelar.addActionListener(e -> dialog.dispose());
 
         btnCadastrar.addActionListener(e -> {
             try {
                 String nome = campoNome.getText().trim();
-                Endereco endereco = new Endereco(campoRua.getText(), campoNumero.getText(), campoComplemento.getText(), campoBairro.getText(), campoCidade.getText(), campoEstado.getText(), campoCep.getText());
+                
+                // Validação básica do nome
+                if (nome.isEmpty()) {
+                    throw new ValidacaoException("O nome da franquia é obrigatório.");
+                }
+                
+                // Validação dos campos de endereço
+                String rua = campoRua.getText().trim();
+                String numero = campoNumero.getText().trim();
+                String bairro = campoBairro.getText().trim();
+                String cidade = campoCidade.getText().trim();
+                String estado = campoEstado.getText().trim();
+                String cep = campoCep.getText().trim();
+                String complemento = campoComplemento.getText().trim();
+                
+                if (rua.isEmpty() || numero.isEmpty() || bairro.isEmpty() || 
+                    cidade.isEmpty() || estado.isEmpty() || cep.isEmpty()) {
+                    throw new ValidacaoException("Todos os campos de endereço são obrigatórios, exceto complemento.");
+                }
+                
+                Endereco endereco = new Endereco(rua, numero, complemento, bairro, cidade, estado, cep);
                 Gerente gerenteSelecionado = null;
 
-                if (comboGerentes.getSelectedIndex() != -1 && !comboGerentes.getSelectedItem().equals("Nenhum (cadastrar depois)")) {
+                if (comboGerentes.getSelectedIndex() != -1 && 
+                    comboGerentes.getSelectedItem() != null &&
+                    !comboGerentes.getSelectedItem().equals("Nenhum (cadastrar depois)")) {
                     String cpfGerente = ((String) comboGerentes.getSelectedItem()).split("\\(")[1].replace(")", "");
                     gerenteSelecionado = sistema.getGerentes().get(cpfGerente);
                 }
                 
-                // Note que o método adicionarFranquia no Sistema foi ajustado para aceitar gerente nulo
                 sistema.adicionarFranquia(nome, endereco, gerenteSelecionado);
                 JOptionPane.showMessageDialog(dialog, "Franquia cadastrada com sucesso!");
                 dialog.dispose();
@@ -139,20 +203,23 @@ public class TelaDono extends JFrame {
                 JOptionPane.showMessageDialog(dialog, ex.getMessage(), "Erro de Validação", JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(dialog, "Erro inesperado: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace(); // Para debug
             }
         });
 
-        dialog.add(new JLabel("Nome:")); dialog.add(campoNome);
-        dialog.add(new JLabel("Rua:")); dialog.add(campoRua);
-        dialog.add(new JLabel("Número:")); dialog.add(campoNumero);
-        dialog.add(new JLabel("Bairro:")); dialog.add(campoBairro);
-        dialog.add(new JLabel("Cidade:")); dialog.add(campoCidade);
-        dialog.add(new JLabel("Estado:")); dialog.add(campoEstado);
-        dialog.add(new JLabel("CEP:")); dialog.add(campoCep);
-        dialog.add(new JLabel("Complemento:")); dialog.add(campoComplemento);
-        dialog.add(new JLabel("Gerente:")); dialog.add(comboGerentes);
-        dialog.add(new JButton("Cancelar")); dialog.add(btnCadastrar);
+        painelPrincipal.add(new JLabel("Nome da Franquia:")); painelPrincipal.add(campoNome);
+        painelPrincipal.add(new JLabel("Rua:")); painelPrincipal.add(campoRua);
+        painelPrincipal.add(new JLabel("Número:")); painelPrincipal.add(campoNumero);
+        painelPrincipal.add(new JLabel("Bairro:")); painelPrincipal.add(campoBairro);
+        painelPrincipal.add(new JLabel("Cidade:")); painelPrincipal.add(campoCidade);
+        painelPrincipal.add(new JLabel("Estado:")); painelPrincipal.add(campoEstado);
+        painelPrincipal.add(new JLabel("CEP:")); painelPrincipal.add(campoCep);
+        painelPrincipal.add(new JLabel("Complemento:")); painelPrincipal.add(campoComplemento);
+        painelPrincipal.add(new JLabel("Gerente:")); painelPrincipal.add(comboGerentes);
+        painelPrincipal.add(new JLabel("")); painelPrincipal.add(new JLabel(""));
+        painelPrincipal.add(btnCancelar); painelPrincipal.add(btnCadastrar);
 
+        dialog.add(painelPrincipal);
         dialog.setVisible(true);
     }
 
@@ -196,7 +263,12 @@ public class TelaDono extends JFrame {
                 sb.append("ID: ").append(f.getId()).append("\n");
                 sb.append("Nome: ").append(f.getNome()).append("\n");
                 Endereco end = f.getEndereco();
-                sb.append("Endereço: ").append(end.getLogradouro()).append(", ").append(end.getNumero()).append(" - ").append(end.getCidade()).append("\n");
+                if (end != null) {
+                    sb.append("Endereço: ").append(end.getLogradouro()).append(", ").append(end.getNumero()).append(" - ").append(end.getCidade()).append("\n");
+                } else {
+                    sb.append("Endereço: Não informado\n");
+                }
+
                 sb.append("Gerente: ").append(f.getGerente() != null ? f.getGerente().getNome() : "SEM GERENTE").append("\n");
                 sb.append("Vendedores: ").append(f.getVendedores().size()).append("\n");
                 sb.append("----------------------------------------\n");
@@ -239,15 +311,21 @@ public class TelaDono extends JFrame {
 
     private void abrirDialogCadastroGerente() {
         JDialog dialog = new JDialog(this, "Novo Gerente", true);
-        dialog.setLayout(new GridLayout(5, 2, 10, 10));
-        dialog.setSize(400, 250);
+        dialog.setSize(400, 300);
         dialog.setLocationRelativeTo(this);
+        
+        JPanel painelPrincipal = new JPanel(new GridLayout(6, 2, 10, 10));
+        painelPrincipal.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JTextField campoNome = new JTextField();
         JTextField campoCpf = new JTextField();
         JTextField campoEmail = new JTextField();
         JPasswordField campoSenha = new JPasswordField();
+        
+        JButton btnCancelar = new JButton("Cancelar");
         JButton btnCadastrar = new JButton("Cadastrar");
+        
+        btnCancelar.addActionListener(e -> dialog.dispose());
 
         btnCadastrar.addActionListener(e -> {
             try {
@@ -269,12 +347,14 @@ public class TelaDono extends JFrame {
             }
         });
 
-        dialog.add(new JLabel("Nome:")); dialog.add(campoNome);
-        dialog.add(new JLabel("CPF:")); dialog.add(campoCpf);
-        dialog.add(new JLabel("Email:")); dialog.add(campoEmail);
-        dialog.add(new JLabel("Senha:")); dialog.add(campoSenha);
-        dialog.add(new JButton("Cancelar")); dialog.add(btnCadastrar);
+        painelPrincipal.add(new JLabel("Nome:")); painelPrincipal.add(campoNome);
+        painelPrincipal.add(new JLabel("CPF:")); painelPrincipal.add(campoCpf);
+        painelPrincipal.add(new JLabel("Email:")); painelPrincipal.add(campoEmail);
+        painelPrincipal.add(new JLabel("Senha:")); painelPrincipal.add(campoSenha);
+        painelPrincipal.add(new JLabel("")); painelPrincipal.add(new JLabel(""));
+        painelPrincipal.add(btnCancelar); painelPrincipal.add(btnCadastrar);
 
+        dialog.add(painelPrincipal);
         dialog.setVisible(true);
     }
     
@@ -347,6 +427,55 @@ public class TelaDono extends JFrame {
         int pos = 1;
         for (Map.Entry<Vendedor, Double> entry : ranking) {
             sb.append(String.format("%-4d %-25s R$ %13.2f\n", pos++, entry.getKey().getNome(), entry.getValue()));
+        }
+
+        areaTexto.setText(sb.toString());
+        dialog.add(new JScrollPane(areaTexto));
+        dialog.setVisible(true);
+    }
+    
+    private void exibirRankingVendedoresPorQuantidade() {
+        if (sistema.getFranquias().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Nenhuma franquia cadastrada.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String[] nomesFranquias = sistema.getFranquias().values().stream().map(Franquia::getNome).toArray(String[]::new);
+        String nomeFranquia = (String) JOptionPane.showInputDialog(this, "Selecione a franquia para ver o ranking:", "Ranking por Quantidade de Vendas", JOptionPane.QUESTION_MESSAGE, null, nomesFranquias, nomesFranquias[0]);
+    
+        if (nomeFranquia == null) return;
+
+        Franquia franquia = sistema.buscarFranquiaPorNome(nomeFranquia);
+        if (franquia.getVendedores().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Esta franquia não possui vendedores.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        JDialog dialog = new JDialog(this, "Ranking por Quantidade de Vendas - " + nomeFranquia, true);
+        dialog.setSize(500, 350);
+        dialog.setLocationRelativeTo(this);
+        JTextArea areaTexto = new JTextArea();
+        areaTexto.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        areaTexto.setEditable(false);
+
+        // Calcula o número de pedidos por vendedor
+        Map<Vendedor, Long> quantidadePorVendedor = franquia.getPedidos().values().stream()
+                .filter(p -> p.getVendedor() != null) // Garante que o pedido tem um vendedor
+                .collect(Collectors.groupingBy(Pedido::getVendedor, Collectors.counting()));
+
+        // Adiciona vendedores que não venderam nada
+        franquia.getVendedores().values().forEach(v -> quantidadePorVendedor.putIfAbsent(v, 0L));
+        
+        List<Map.Entry<Vendedor, Long>> ranking = quantidadePorVendedor.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toList());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%-4s %-25s %15s\n", "Pos.", "Vendedor", "Qtd. Vendas"));
+        sb.append("--------------------------------------------------\n");
+        int pos = 1;
+        for (Map.Entry<Vendedor, Long> entry : ranking) {
+            sb.append(String.format("%-4d %-25s %15d\n", pos++, entry.getKey().getNome(), entry.getValue()));
         }
 
         areaTexto.setText(sb.toString());

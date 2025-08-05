@@ -1,12 +1,20 @@
 // br/ufjf/dcc/sistemadefranquias/controle/CargaDeDados.java
 package br.ufjf.dcc.sistemadefranquias.controle;
 
-import br.ufjf.dcc.sistemadefranquias.modelo.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+
+import br.ufjf.dcc.sistemadefranquias.modelo.Cliente;
+import br.ufjf.dcc.sistemadefranquias.modelo.Dono;
+import br.ufjf.dcc.sistemadefranquias.modelo.Endereco;
+import br.ufjf.dcc.sistemadefranquias.modelo.Franquia;
+import br.ufjf.dcc.sistemadefranquias.modelo.Gerente;
+import br.ufjf.dcc.sistemadefranquias.modelo.Pedido;
+import br.ufjf.dcc.sistemadefranquias.modelo.Produto;
+import br.ufjf.dcc.sistemadefranquias.modelo.Vendedor;
 
 /**
  * Classe utilitária para popular o sistema com uma grande massa de dados para teste.
@@ -79,12 +87,14 @@ public class CargaDeDados {
             Produto p2 = new Produto(2, "Teclado Mecânico", "Teclado ABNT2", 350.00, 40);
             Produto p3 = new Produto(3, "Headset 7.1", "Headset com som surround", 450.00, 30);
             Produto p4 = new Produto(4, "Monitor 24p 144Hz", "Monitor Full HD", 1250.00, 20);
+            Produto p5 = new Produto(5, "Webcam 4K", "Webcam Ultra HD com microfone", 800.00, 5);
 
             for (Franquia f : franquiasCriadas) {
                 f.getEstoque().put(p1.getId(), new Produto(p1.getId(), p1.getNome(), p1.getDescricao(), p1.getPreco(), random.nextInt(50) + 10));
                 f.getEstoque().put(p2.getId(), new Produto(p2.getId(), p2.getNome(), p2.getDescricao(), p2.getPreco(), random.nextInt(40) + 10));
                 f.getEstoque().put(p3.getId(), new Produto(p3.getId(), p3.getNome(), p3.getDescricao(), p3.getPreco(), random.nextInt(30) + 10));
                 f.getEstoque().put(p4.getId(), new Produto(p4.getId(), p4.getNome(), p4.getDescricao(), p4.getPreco(), random.nextInt(20) + 5));
+                f.getEstoque().put(p5.getId(), new Produto(p5.getId(), p5.getNome(), p5.getDescricao(), p5.getPreco(), 5)); // Quantidade fixa de 5
             }
 
             // --- 5. CRIANDO CLIENTES E PEDIDOS PARA TESTE ---
@@ -94,7 +104,7 @@ public class CargaDeDados {
                 clientes.add(new Cliente(i, gerarNomeAleatorio(random), "c" + i, "c"+i+"@email.com"));
             }
 
-            int proximoIdPedido = 1;
+            int proximoIdPedido = sistema.getProximoIdPedido();
             for (int i = 0; i < 150; i++) {
                 Vendedor vendedorSorteado = todosOsVendedores.get(random.nextInt(todosOsVendedores.size()));
                 Franquia franquiaDoVendedor = vendedorSorteado.getFranquia();
@@ -106,6 +116,9 @@ public class CargaDeDados {
                 pedido.setVendedor(vendedorSorteado);
                 franquiaDoVendedor.getPedidos().put(pedido.getId(), pedido);
             }
+            
+            // Atualizar o próximo ID no sistema
+            sistema.setProximoIdPedido(proximoIdPedido);
 
             System.out.println("Carga de dados massivos concluída com sucesso!");
 

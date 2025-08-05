@@ -12,6 +12,8 @@ public class Franquia  {
     private Map<String, Vendedor> vendedores; // Chave: CPF do Vendedor
     private Map<Integer, Produto> estoque;    // Chave: ID do Produto
     private Map<Integer, Pedido> pedidos;     // Chave: ID do Pedido
+    private Map<Integer, SolicitacaoPedido> solicitacoesPendentes; // Chave: ID da Solicitação
+    private Map<Integer, SolicitacaoPedido> historicoSolicitacoes; // Chave: ID da Solicitação
 
     public Franquia(int id, String nome, Endereco endereco) {
         this.id = id;
@@ -20,6 +22,8 @@ public class Franquia  {
         this.vendedores = new HashMap<>();
         this.estoque = new HashMap<>();
         this.pedidos = new HashMap<>();
+        this.solicitacoesPendentes = new HashMap<>();
+        this.historicoSolicitacoes = new HashMap<>();
     }
 
     // --- Getters ---
@@ -52,6 +56,14 @@ public class Franquia  {
         return pedidos;
     }
 
+    public Map<Integer, SolicitacaoPedido> getSolicitacoesPendentes() {
+        return solicitacoesPendentes;
+    }
+
+    public Map<Integer, SolicitacaoPedido> getHistoricoSolicitacoes() {
+        return historicoSolicitacoes;
+    }
+
     // --- Setters ---
 
     public void setId(int id) {
@@ -80,5 +92,9 @@ public class Franquia  {
 
     public void setPedidos(Map<Integer, Pedido> pedidos) {
         this.pedidos = pedidos;
+    }
+
+    public void setSolicitacoesPendentes(Map<Integer, SolicitacaoPedido> solicitacoesPendentes) {
+        this.solicitacoesPendentes = solicitacoesPendentes;
     }
 }

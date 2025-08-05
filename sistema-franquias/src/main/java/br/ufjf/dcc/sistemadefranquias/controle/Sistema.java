@@ -16,6 +16,7 @@ import br.ufjf.dcc.sistemadefranquias.modelo.Franquia;
 import br.ufjf.dcc.sistemadefranquias.modelo.Gerente;
 import br.ufjf.dcc.sistemadefranquias.modelo.Pedido;
 import br.ufjf.dcc.sistemadefranquias.modelo.Produto;
+import br.ufjf.dcc.sistemadefranquias.modelo.SolicitacaoPedido;
 import br.ufjf.dcc.sistemadefranquias.modelo.Usuario;
 import br.ufjf.dcc.sistemadefranquias.modelo.Vendedor;
 
@@ -23,6 +24,7 @@ public class Sistema {
     private Map<String, Usuario> usuarios;      // Chave: CPF
     private Map<Integer, Franquia> franquias;   // Chave: ID da Franquia
     private int proximoIdFranquia = 1;
+    private int proximoIdPedido = 1;            // Controle centralizado de IDs de pedidos
 
     public Sistema() {
         this.usuarios = new HashMap<>();
@@ -76,7 +78,10 @@ public class Sistema {
         // Lógica para remover o usuário de uma franquia, se aplicável
         Usuario usuario = usuarios.get(cpf);
         if (usuario instanceof Gerente) {
-            ((Gerente) usuario).getFranquiaGerenciada().setGerente(null);
+            Gerente gerente = (Gerente) usuario;
+            if (gerente.getFranquiaGerenciada() != null) {
+                gerente.getFranquiaGerenciada().setGerente(null);
+            }
         } else if (usuario instanceof Vendedor) {
             ((Vendedor) usuario).getFranquia().getVendedores().remove(cpf);
         }
@@ -86,12 +91,22 @@ public class Sistema {
     // --- Métodos de Gerenciamento de Franquias ---
     
     public void adicionarFranquia(String nome, Endereco endereco, Gerente gerente) throws ValidacaoException {
+        if (nome == null || nome.trim().isEmpty()) {
+            throw new ValidacaoException("O nome da franquia é obrigatório.");
+        }
+        
         if (franquias.values().stream().anyMatch(f -> f.getNome().equals(nome))) {
             throw new ValidacaoException("Já existe uma franquia com este nome.");
         }
         
         Franquia novaFranquia = new Franquia(proximoIdFranquia, nome, endereco);
-        novaFranquia.setGerente(gerente); // Associa o gerente à franquia
+        
+        // Associação bidirecional entre franquia e gerente
+        if (gerente != null) {
+            novaFranquia.setGerente(gerente);
+            gerente.setFranquiaGerenciada(novaFranquia);
+        }
+        
         franquias.put(proximoIdFranquia, novaFranquia);
         proximoIdFranquia++;
     }
@@ -130,6 +145,14 @@ public class Sistema {
         }
         // Lógica de processamento do pedido...
         franquia.getPedidos().put(pedido.getId(), pedido);
+        
+        // Salvar automaticamente após registrar pedido
+        try {
+            br.ufjf.dcc.sistemadefranquias.persistencia.Persistencia.salvar(this);
+            System.out.println("Dados salvos automaticamente após registrar pedido #" + pedido.getId());
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar dados automaticamente: " + e.getMessage());
+        }
     }
 
     public void adicionarProduto(Franquia franquia, Produto produto) throws ValidacaoException {
@@ -139,7 +162,81 @@ public class Sistema {
         franquia.getEstoque().put(produto.getId(), produto);
     }
 
-   
+    // --- Métodos de Gerenciamento de Solicitações de Pedidos ---
+    
+    public void criarSolicitacaoPedido(Franquia franquia, Vendedor vendedor, Pedido pedido, String tipoSolicitacao, String justificativa) throws ValidacaoException {
+        if (franquia == null) {
+            throw new ValidacaoException("Franquia inválida para criar solicitação.");
+        }
+        if (vendedor == null || pedido == null) {
+            throw new ValidacaoException("Vendedor e pedido são obrigatórios para criar solicitação.");
+        }
+        
+        // Gerar ID único para a solicitação
+        int proximoId = franquia.getSolicitacoesPendentes().size() + 1;
+        SolicitacaoPedido solicitacao = new SolicitacaoPedido(proximoId, vendedor, pedido, tipoSolicitacao, justificativa);
+        franquia.getSolicitacoesPendentes().put(proximoId, solicitacao);
+    }
+    
+    public void aprovarSolicitacaoPedido(Franquia franquia, int idSolicitacao, String comentarioGerente) throws ValidacaoException {
+        SolicitacaoPedido solicitacao = franquia.getSolicitacoesPendentes().get(idSolicitacao);
+        if (solicitacao == null) {
+            throw new ValidacaoException("Solicitação não encontrada.");
+        }
+        
+        solicitacao.setStatus("APROVADA");
+        solicitacao.setComentarioGerente(comentarioGerente);
+        solicitacao.setDataResposta(new java.util.Date());
+        
+        // Executar a ação se aprovada
+        Pedido pedidoOriginal = solicitacao.getPedido();
+        if ("EXCLUIR".equals(solicitacao.getTipoSolicitacao())) {
+            // Atualizar status do pedido antes de remover
+            pedidoOriginal.setStatus("CANCELADO");
+            franquia.getPedidos().remove(pedidoOriginal.getId());
+        } else if ("ALTERAR".equals(solicitacao.getTipoSolicitacao())) {
+            // Para alteração, atualizar o status do pedido
+            pedidoOriginal.setStatus("EM ALTERAÇÃO");
+            // Aqui poderia haver lógica adicional para permitir alterações específicas
+        }
+        
+        // Remover da lista de pendentes e mover para histórico
+        franquia.getSolicitacoesPendentes().remove(idSolicitacao);
+        franquia.getHistoricoSolicitacoes().put(idSolicitacao, solicitacao);
+    }
+    
+    public void rejeitarSolicitacaoPedido(Franquia franquia, int idSolicitacao, String comentarioGerente) throws ValidacaoException {
+        SolicitacaoPedido solicitacao = franquia.getSolicitacoesPendentes().get(idSolicitacao);
+        if (solicitacao == null) {
+            throw new ValidacaoException("Solicitação não encontrada.");
+        }
+        
+        solicitacao.setStatus("REJEITADA");
+        solicitacao.setComentarioGerente(comentarioGerente);
+        solicitacao.setDataResposta(new java.util.Date());
+        
+        // O pedido original mantém seu status atual quando a solicitação é rejeitada
+        // Nenhuma alteração no pedido é necessária
+        
+        // Remover da lista de pendentes e mover para histórico
+        franquia.getSolicitacoesPendentes().remove(idSolicitacao);
+        franquia.getHistoricoSolicitacoes().put(idSolicitacao, solicitacao);
+    }
+    
+    // --- Método para finalizar alteração de pedido ---
+    
+    public void finalizarAlteracaoPedido(Franquia franquia, Pedido pedido, String novoStatus) throws ValidacaoException {
+        if (franquia == null || pedido == null) {
+            throw new ValidacaoException("Franquia e pedido são obrigatórios.");
+        }
+        
+        if (!"EM ALTERAÇÃO".equals(pedido.getStatus())) {
+            throw new ValidacaoException("Este pedido não está em processo de alteração.");
+        }
+        
+        // Atualizar status do pedido
+        pedido.setStatus(novoStatus != null ? novoStatus : "Confirmado");
+    }
 
     // Este método salva o estado do sistema em um arquivo
     public void salvarSistema(String nomeArquivo) throws IOException {
@@ -175,6 +272,18 @@ public class Sistema {
         this.proximoIdFranquia = proximoIdFranquia;
     }
     
+    public int getProximoIdPedido() {
+        return proximoIdPedido;
+    }
+    
+    public void setProximoIdPedido(int proximoIdPedido) {
+        this.proximoIdPedido = proximoIdPedido;
+    }
+    
+    public int gerarNovoIdPedido() {
+        return proximoIdPedido++;
+    }
+    
 
 
 public Map<String, Gerente> getGerentes() {
@@ -195,6 +304,44 @@ public Franquia buscarFranquiaPorNome(String nome) {
         }
     }
     return null; 
+}
+
+// --- Métodos de Gerenciamento de Produtos ---
+
+public Produto buscarProdutoPorNome(Franquia franquia, String nomeProduto) {
+    if (franquia == null || nomeProduto == null) {
+        return null;
+    }
+    
+    for (Produto produto : franquia.getEstoque().values()) {
+        if (produto.getNome().equalsIgnoreCase(nomeProduto.trim())) {
+            return produto;
+        }
+    }
+    return null;
+}
+
+public boolean verificarEstoqueProduto(Franquia franquia, String nomeProduto, int quantidadeSolicitada) {
+    Produto produto = buscarProdutoPorNome(franquia, nomeProduto);
+    if (produto == null) {
+        return false;
+    }
+    return produto.getQuantidadeEmEstoque() >= quantidadeSolicitada;
+}
+
+public void reduzirEstoqueProduto(Franquia franquia, String nomeProduto, int quantidade) throws ValidacaoException {
+    Produto produto = buscarProdutoPorNome(franquia, nomeProduto);
+    if (produto == null) {
+        throw new ValidacaoException("Produto não encontrado: " + nomeProduto);
+    }
+    
+    if (produto.getQuantidadeEmEstoque() < quantidade) {
+        throw new ValidacaoException("Estoque insuficiente para o produto: " + nomeProduto + 
+                                   ". Disponível: " + produto.getQuantidadeEmEstoque() + 
+                                   ", Solicitado: " + quantidade);
+    }
+    
+    produto.setQuantidadeEmEstoque(produto.getQuantidadeEmEstoque() - quantidade);
 }
 
 

@@ -1,12 +1,24 @@
 // br/ufjf/dcc/sistemadefranquias/persistencia/Persistencia.java
 package br.ufjf.dcc.sistemadefranquias.persistencia;
 
-import br.ufjf.dcc.sistemadefranquias.controle.Sistema;
-import br.ufjf.dcc.sistemadefranquias.modelo.*;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+
+import br.ufjf.dcc.sistemadefranquias.controle.Sistema;
+import br.ufjf.dcc.sistemadefranquias.modelo.Cliente;
+import br.ufjf.dcc.sistemadefranquias.modelo.Dono;
+import br.ufjf.dcc.sistemadefranquias.modelo.Franquia;
+import br.ufjf.dcc.sistemadefranquias.modelo.Gerente;
+import br.ufjf.dcc.sistemadefranquias.modelo.Pedido;
+import br.ufjf.dcc.sistemadefranquias.modelo.Produto;
+import br.ufjf.dcc.sistemadefranquias.modelo.Usuario;
+import br.ufjf.dcc.sistemadefranquias.modelo.Vendedor;
 
 public class Persistencia {
 
@@ -47,8 +59,60 @@ public class Persistencia {
                  writer.println(f.getId() + DELIMITADOR + f.getNome() + DELIMITADOR + gerenteCpf);
             }
             
-            // Poderíamos continuar para Produtos, Pedidos, etc., seguindo a mesma lógica...
-            // Por simplicidade, este exemplo foca em Usuários e Franquias.
+            // --- SALVAR CONFIGURAÇÕES DO SISTEMA ---
+            writer.println("---SISTEMA---");
+            writer.println("proximoIdFranquia" + DELIMITADOR + sistema.getProximoIdFranquia());
+            writer.println("proximoIdPedido" + DELIMITADOR + sistema.getProximoIdPedido());
+            
+            // --- SALVAR PRODUTOS ---
+            writer.println("---PRODUTOS---");
+            System.out.println("Salvando produtos...");
+            int contadorProdutos = 0;
+            for (Franquia f : sistema.getFranquias().values()) {
+                for (Produto p : f.getEstoque().values()) {
+                    // Formato: FRANQUIA_ID;PRODUTO_ID;NOME;DESCRICAO;PRECO;QUANTIDADE
+                    writer.println(f.getId() + DELIMITADOR + p.getId() + DELIMITADOR + p.getNome() + DELIMITADOR + 
+                                 p.getDescricao() + DELIMITADOR + p.getPreco() + DELIMITADOR + p.getQuantidadeEmEstoque());
+                    contadorProdutos++;
+                }
+            }
+            System.out.println("Total de produtos salvos: " + contadorProdutos);
+            
+            // --- SALVAR CLIENTES (únicos) PRIMEIRO ---
+            writer.println("---CLIENTES---");
+            System.out.println("Salvando clientes...");
+            java.util.Set<Integer> clientesSalvos = new java.util.HashSet<>();
+            int contadorClientes = 0;
+            for (Franquia f : sistema.getFranquias().values()) {
+                for (Pedido pedido : f.getPedidos().values()) {
+                    Cliente cliente = pedido.getCliente();
+                    // Evitar duplicatas de clientes
+                    if (!clientesSalvos.contains(cliente.getId())) {
+                        // Formato: ID;NOME;CPF;EMAIL
+                        writer.println(cliente.getId() + DELIMITADOR + cliente.getNome() + DELIMITADOR + 
+                                     cliente.getCpf() + DELIMITADOR + cliente.getEmail());
+                        clientesSalvos.add(cliente.getId());
+                        contadorClientes++;
+                    }
+                }
+            }
+            System.out.println("Total de clientes salvos: " + contadorClientes);
+            
+            // --- SALVAR PEDIDOS DEPOIS ---
+            writer.println("---PEDIDOS---");
+            System.out.println("Salvando pedidos...");
+            int contadorPedidos = 0;
+            for (Franquia f : sistema.getFranquias().values()) {
+                for (Pedido pedido : f.getPedidos().values()) {
+                    // Formato: FRANQUIA_ID;PEDIDO_ID;DATA;CLIENTE_ID;VALOR_TOTAL;STATUS;VENDEDOR_CPF
+                    String vendedorCpf = (pedido.getVendedor() != null) ? pedido.getVendedor().getCpf() : "null";
+                    writer.println(f.getId() + DELIMITADOR + pedido.getId() + DELIMITADOR + pedido.getDataPedido().getTime() + DELIMITADOR + 
+                                 pedido.getCliente().getId() + DELIMITADOR + pedido.getValorTotal() + DELIMITADOR + 
+                                 pedido.getStatus() + DELIMITADOR + vendedorCpf);
+                    contadorPedidos++;
+                }
+            }
+            System.out.println("Total de pedidos salvos: " + contadorPedidos);
 
             writer.println("---FIM---");
         }
@@ -66,6 +130,7 @@ public class Persistencia {
         Map<String, String> gerenteParaFranquia = new HashMap<>(); // gerente_cpf -> franquia_id
         Map<String, String> vendedorParaFranquia = new HashMap<>(); // vendedor_cpf -> franquia_id
         Map<Integer, String> franquiaParaGerente = new HashMap<>(); // franquia_id -> gerente_cpf
+        Map<Integer, Cliente> clientesPorId = new HashMap<>(); // Para reutilizar clientes
 
         try (BufferedReader reader = new BufferedReader(new FileReader(ARQUIVO_DADOS))) {
             String linha;
@@ -117,6 +182,76 @@ public class Persistencia {
                         franquiaParaGerente.put(id, gerenteCpf);
                     }
                     sistema.setProximoIdFranquia(Math.max(sistema.getProximoIdFranquia(), id + 1));
+                    
+                } else if (secaoAtual.equals("---PRODUTOS---")) {
+                    // Formato: FRANQUIA_ID;PRODUTO_ID;NOME;DESCRICAO;PRECO;QUANTIDADE
+                    int franquiaId = Integer.parseInt(dados[0]);
+                    int produtoId = Integer.parseInt(dados[1]);
+                    String nome = dados[2];
+                    String descricao = dados[3];
+                    double preco = Double.parseDouble(dados[4]);
+                    int quantidade = Integer.parseInt(dados[5]);
+                    
+                    Produto produto = new Produto(produtoId, nome, descricao, preco, quantidade);
+                    Franquia franquia = sistema.getFranquias().get(franquiaId);
+                    if (franquia != null) {
+                        franquia.getEstoque().put(produtoId, produto);
+                    }
+                    
+                } else if (secaoAtual.equals("---SISTEMA---")) {
+                    // Formato: chave;valor
+                    if (dados.length >= 2) {
+                        String chave = dados[0];
+                        String valor = dados[1];
+                        
+                        if ("proximoIdFranquia".equals(chave)) {
+                            sistema.setProximoIdFranquia(Integer.parseInt(valor));
+                        } else if ("proximoIdPedido".equals(chave)) {
+                            sistema.setProximoIdPedido(Integer.parseInt(valor));
+                        }
+                    }
+                    
+                } else if (secaoAtual.equals("---CLIENTES---")) {
+                    // Formato: ID;NOME;CPF;EMAIL
+                    int id = Integer.parseInt(dados[0]);
+                    String nome = dados[1];
+                    String cpf = dados[2];
+                    String email = dados[3];
+                    
+                    Cliente cliente = new Cliente(id, nome, cpf, email);
+                    clientesPorId.put(id, cliente);
+                    
+                } else if (secaoAtual.equals("---PEDIDOS---")) {
+                    // Formato: FRANQUIA_ID;PEDIDO_ID;DATA;CLIENTE_ID;VALOR_TOTAL;STATUS;VENDEDOR_CPF
+                    int franquiaId = Integer.parseInt(dados[0]);
+                    int pedidoId = Integer.parseInt(dados[1]);
+                    long dataTime = Long.parseLong(dados[2]);
+                    int clienteId = Integer.parseInt(dados[3]);
+                    double valorTotal = Double.parseDouble(dados[4]);
+                    String status = dados[5];
+                    String vendedorCpf = dados[6];
+                    
+                    Cliente cliente = clientesPorId.get(clienteId);
+                    if (cliente != null) {
+                        Pedido pedido = new Pedido(pedidoId, new java.util.Date(dataTime), cliente, valorTotal, status);
+                        
+                        // Associar vendedor (será feito na segunda passagem)
+                        if (!vendedorCpf.equals("null")) {
+                            Vendedor vendedor = (Vendedor) sistema.getUsuarios().get(vendedorCpf);
+                            if (vendedor != null) {
+                                pedido.setVendedor(vendedor);
+                            }
+                        }
+                        
+                        Franquia franquia = sistema.getFranquias().get(franquiaId);
+                        if (franquia != null) {
+                            franquia.getPedidos().put(pedidoId, pedido);
+                            // Atualizar o próximo ID se necessário
+                            if (pedidoId >= sistema.getProximoIdPedido()) {
+                                sistema.setProximoIdPedido(pedidoId + 1);
+                            }
+                        }
+                    }
                 }
             }
         }
