@@ -1,5 +1,6 @@
 package br.ufjf.dcc.sistemadefranquias.modelo;
 
+//herda do Usuario
 public class Vendedor extends Usuario {
     private Franquia franquia;
 

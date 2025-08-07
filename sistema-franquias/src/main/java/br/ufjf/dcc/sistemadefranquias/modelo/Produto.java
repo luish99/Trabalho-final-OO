@@ -17,7 +17,7 @@ public class Produto {
         this.quantidadeEmEstoque = quantidade;
     }
 
-    // --- Getters ---
+
 
     public int getId() {
         return id;
@@ -39,7 +39,6 @@ public class Produto {
         return quantidadeEmEstoque;
     }
 
-    // --- Setters ---
 
     public void setId(int id) {
         this.id = id;

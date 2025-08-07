@@ -138,7 +138,6 @@ public class TelaDono extends JFrame {
         dialog.setSize(450, 450);
         dialog.setLocationRelativeTo(this);
 
-        // Adicionando padding ao dialog
         JPanel painelPrincipal = new JPanel(new GridLayout(11, 2, 10, 10));
         painelPrincipal.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -247,7 +246,7 @@ public class TelaDono extends JFrame {
     }
 
     private void exibirListaFranquias() {
-        // Implementação já existente, melhorada
+        
         JDialog dialog = new JDialog(this, "Lista de Franquias", true);
         dialog.setSize(600, 400);
         dialog.setLocationRelativeTo(this);
@@ -280,7 +279,7 @@ public class TelaDono extends JFrame {
     }
 
     private void exibirDesempenhoFranquias() {
-        // Implementação já existente, mantida
+        
          JDialog dialog = new JDialog(this, "Desempenho das Franquias", true);
         dialog.setSize(600, 400);
         dialog.setLocationRelativeTo(this);

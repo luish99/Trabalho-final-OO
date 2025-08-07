@@ -24,7 +24,6 @@ public class SolicitacaoPedido {
         this.status = "PENDENTE";
     }
     
-    // --- Getters ---
     public int getId() { return id; }
     public Date getDataSolicitacao() { return dataSolicitacao; }
     public Vendedor getVendedor() { return vendedor; }
@@ -35,7 +34,6 @@ public class SolicitacaoPedido {
     public String getComentarioGerente() { return comentarioGerente; }
     public Date getDataResposta() { return dataResposta; }
     
-    // --- Setters ---
     public void setId(int id) { this.id = id; }
     public void setDataSolicitacao(Date dataSolicitacao) { this.dataSolicitacao = dataSolicitacao; }
     public void setVendedor(Vendedor vendedor) { this.vendedor = vendedor; }

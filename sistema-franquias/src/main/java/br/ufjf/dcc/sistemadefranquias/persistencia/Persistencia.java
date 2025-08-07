@@ -22,18 +22,18 @@ import br.ufjf.dcc.sistemadefranquias.modelo.Vendedor;
 
 public class Persistencia {
 
-    public static final String ARQUIVO_DADOS = "dados_franquia.txt"; // Mudamos para .txt para indicar que é texto
+    public static final String ARQUIVO_DADOS = "dados_franquia.txt"; 
     private static final String DELIMITADOR = ";";
 
-    // MÉTODO PARA SALVAR OS DADOS EM FORMATO TEXTO
+    // metodo para salvar os dados do sistema em um arquivo texto
     public static void salvar(Sistema sistema) throws IOException {
         try (PrintWriter writer = new PrintWriter(new FileWriter(ARQUIVO_DADOS))) {
             
-            // --- SALVAR USUÁRIOS ---
+            // salva os dados do usuario
             writer.println("---USUARIOS---");
             for (Usuario u : sistema.getUsuarios().values()) {
                 String tipo = "";
-                String franquiaRef = ""; // Referência à franquia para Gerentes e Vendedores
+                String franquiaRef = ""; 
                 if (u instanceof Dono) tipo = "Dono";
                 if (u instanceof Gerente) {
                     tipo = "Gerente";
@@ -51,7 +51,7 @@ public class Persistencia {
                 writer.println(tipo + DELIMITADOR + u.getCpf() + DELIMITADOR + u.getNome() + DELIMITADOR + u.getEmail() + DELIMITADOR + u.getSenha() + DELIMITADOR + franquiaRef);
             }
 
-            // --- SALVAR FRANQUIAS ---
+            // salva as franquias
             writer.println("---FRANQUIAS---");
             for (Franquia f : sistema.getFranquias().values()) {
                  // Formato: ID;NOME;GERENTE_CPF
@@ -59,12 +59,12 @@ public class Persistencia {
                  writer.println(f.getId() + DELIMITADOR + f.getNome() + DELIMITADOR + gerenteCpf);
             }
             
-            // --- SALVAR CONFIGURAÇÕES DO SISTEMA ---
+            // salva o sistema
             writer.println("---SISTEMA---");
             writer.println("proximoIdFranquia" + DELIMITADOR + sistema.getProximoIdFranquia());
             writer.println("proximoIdPedido" + DELIMITADOR + sistema.getProximoIdPedido());
             
-            // --- SALVAR PRODUTOS ---
+            // salva os produtos
             writer.println("---PRODUTOS---");
             System.out.println("Salvando produtos...");
             int contadorProdutos = 0;
@@ -78,7 +78,7 @@ public class Persistencia {
             }
             System.out.println("Total de produtos salvos: " + contadorProdutos);
             
-            // --- SALVAR CLIENTES (únicos) PRIMEIRO ---
+            // salva os clientes
             writer.println("---CLIENTES---");
             System.out.println("Salvando clientes...");
             java.util.Set<Integer> clientesSalvos = new java.util.HashSet<>();
@@ -127,9 +127,9 @@ public class Persistencia {
         }
 
         // Mapas temporários para guardar as referências que serão ligadas depois
-        Map<String, String> gerenteParaFranquia = new HashMap<>(); // gerente_cpf -> franquia_id
-        Map<String, String> vendedorParaFranquia = new HashMap<>(); // vendedor_cpf -> franquia_id
-        Map<Integer, String> franquiaParaGerente = new HashMap<>(); // franquia_id -> gerente_cpf
+        Map<String, String> gerenteParaFranquia = new HashMap<>(); // cpf do gerente -> franquia_id
+        Map<String, String> vendedorParaFranquia = new HashMap<>(); // cpf do vendedor -> franquia_id
+        Map<Integer, String> franquiaParaGerente = new HashMap<>(); // franquia_id -> cpf do gerente
         Map<Integer, Cliente> clientesPorId = new HashMap<>(); // Para reutilizar clientes
 
         try (BufferedReader reader = new BufferedReader(new FileReader(ARQUIVO_DADOS))) {
@@ -255,8 +255,6 @@ public class Persistencia {
                 }
             }
         }
-
-        // --- SEGUNDA PASSAGEM: LIGANDO AS REFERÊNCIAS ---
         // Ligar Gerentes às suas Franquias
         for (Map.Entry<Integer, String> entry : franquiaParaGerente.entrySet()) {
             Franquia f = sistema.getFranquias().get(entry.getKey());

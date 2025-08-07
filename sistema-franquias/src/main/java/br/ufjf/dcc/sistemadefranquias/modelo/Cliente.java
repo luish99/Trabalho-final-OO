@@ -13,7 +13,6 @@ public class Cliente{
         this.email = email;
     }
 
-    // --- Getters ---
 
     public int getId() {
         return id;
@@ -31,7 +30,6 @@ public class Cliente{
         return email;
     }
 
-    // --- Setters ---
 
     public void setId(int id) {
         this.id = id;

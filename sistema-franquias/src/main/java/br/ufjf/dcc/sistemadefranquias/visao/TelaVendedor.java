@@ -1,4 +1,5 @@
 // br/ufjf/dcc/sistemadefranquias/visao/TelaVendedor.java
+
 package br.ufjf.dcc.sistemadefranquias.visao;
 
 import java.awt.BorderLayout;
@@ -25,6 +26,8 @@ import br.ufjf.dcc.sistemadefranquias.modelo.Cliente;
 import br.ufjf.dcc.sistemadefranquias.modelo.Franquia;
 import br.ufjf.dcc.sistemadefranquias.modelo.Pedido;
 import br.ufjf.dcc.sistemadefranquias.modelo.Vendedor;
+
+//classe para a tela do vendedor 
 
 public class TelaVendedor extends JFrame {
     private Sistema sistema;

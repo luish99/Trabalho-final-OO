@@ -21,18 +21,17 @@ import br.ufjf.dcc.sistemadefranquias.modelo.Usuario;
 import br.ufjf.dcc.sistemadefranquias.modelo.Vendedor;
 
 public class Sistema {
-    private Map<String, Usuario> usuarios;      // Chave: CPF
-    private Map<Integer, Franquia> franquias;   // Chave: ID da Franquia
+    private Map<String, Usuario> usuarios;      // chave cpf do usuario para acessar o usuario
+    private Map<Integer, Franquia> franquias;   // chave id da franquia para acessar a franquia
     private int proximoIdFranquia = 1;
-    private int proximoIdPedido = 1;            // Controle centralizado de IDs de pedidos
+    private int proximoIdPedido = 1;           
 
     public Sistema() {
         this.usuarios = new HashMap<>();
         this.franquias = new HashMap<>();
     }
 
-    // --- Métodos de Autenticação e Usuários ---
-
+// primeiro método de autenticação, que verifica se o usuário existe e se a senha está correta
     public Usuario autenticar(String cpf, String senha) throws ValidacaoException {
         if (!usuarios.containsKey(cpf)) {
             throw new ValidacaoException("Usuário não encontrado.");
@@ -48,7 +47,6 @@ public class Sistema {
         if(usuarios.containsKey(cpf)) {
             throw new ValidacaoException("CPF já cadastrado.");
         }
-        // Outras validações...
         Dono novoDono = new Dono(nome, cpf, email, senha);
         usuarios.put(cpf, novoDono);
     }
@@ -75,8 +73,7 @@ public class Sistema {
         if (!usuarios.containsKey(cpf)) {
             throw new ValidacaoException("Usuário não encontrado.");
         }
-        // Lógica para remover o usuário de uma franquia, se aplicável
-        Usuario usuario = usuarios.get(cpf);
+        Usuario usuario = usuarios.get(cpf); //para remover corretamente o gerente ou vendedor associado
         if (usuario instanceof Gerente) {
             Gerente gerente = (Gerente) usuario;
             if (gerente.getFranquiaGerenciada() != null) {
@@ -88,7 +85,6 @@ public class Sistema {
         usuarios.remove(cpf);
     }
 
-    // --- Métodos de Gerenciamento de Franquias ---
     
     public void adicionarFranquia(String nome, Endereco endereco, Gerente gerente) throws ValidacaoException {
         if (nome == null || nome.trim().isEmpty()) {
@@ -101,7 +97,6 @@ public class Sistema {
         
         Franquia novaFranquia = new Franquia(proximoIdFranquia, nome, endereco);
         
-        // Associação bidirecional entre franquia e gerente
         if (gerente != null) {
             novaFranquia.setGerente(gerente);
             gerente.setFranquiaGerenciada(novaFranquia);
@@ -132,18 +127,17 @@ public class Sistema {
         usuarios.remove(cpfVendedor);
     }
 
-    // 3. Remover a franquia do mapa
+    // 3. Remover a franquia do map
     franquias.remove(id);
 }
 
 
-    // --- Métodos de Gerenciamento de Pedidos e Produtos ---
 
     public void registrarPedido(Franquia franquia, Pedido pedido) throws ValidacaoException {
         if (franquia == null) {
             throw new ValidacaoException("Franquia inválida para registrar o pedido.");
         }
-        // Lógica de processamento do pedido...
+        // Lógica de processamento do pedido
         franquia.getPedidos().put(pedido.getId(), pedido);
         
         // Salvar automaticamente após registrar pedido
@@ -162,7 +156,6 @@ public class Sistema {
         franquia.getEstoque().put(produto.getId(), produto);
     }
 
-    // --- Métodos de Gerenciamento de Solicitações de Pedidos ---
     
     public void criarSolicitacaoPedido(Franquia franquia, Vendedor vendedor, Pedido pedido, String tipoSolicitacao, String justificativa) throws ValidacaoException {
         if (franquia == null) {
@@ -172,7 +165,6 @@ public class Sistema {
             throw new ValidacaoException("Vendedor e pedido são obrigatórios para criar solicitação.");
         }
         
-        // Gerar ID único para a solicitação
         int proximoId = franquia.getSolicitacoesPendentes().size() + 1;
         SolicitacaoPedido solicitacao = new SolicitacaoPedido(proximoId, vendedor, pedido, tipoSolicitacao, justificativa);
         franquia.getSolicitacoesPendentes().put(proximoId, solicitacao);
@@ -223,7 +215,6 @@ public class Sistema {
         franquia.getHistoricoSolicitacoes().put(idSolicitacao, solicitacao);
     }
     
-    // --- Método para finalizar alteração de pedido ---
     
     public void finalizarAlteracaoPedido(Franquia franquia, Pedido pedido, String novoStatus) throws ValidacaoException {
         if (franquia == null || pedido == null) {

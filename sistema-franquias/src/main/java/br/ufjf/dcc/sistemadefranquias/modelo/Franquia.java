@@ -26,7 +26,6 @@ public class Franquia  {
         this.historicoSolicitacoes = new HashMap<>();
     }
 
-    // --- Getters ---
 
     public int getId() {
         return id;
@@ -64,7 +63,6 @@ public class Franquia  {
         return historicoSolicitacoes;
     }
 
-    // --- Setters ---
 
     public void setId(int id) {
         this.id = id;

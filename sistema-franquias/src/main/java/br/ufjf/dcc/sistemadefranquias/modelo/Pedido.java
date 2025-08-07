@@ -23,7 +23,6 @@ public class Pedido {
         this.produtosPedidos = new HashMap<>(); 
     }
 
-    // --- Getters ---
 
     public int getId() {
         return id;
@@ -52,8 +51,6 @@ public class Pedido {
     public Vendedor getVendedor() {
         return vendedor;
     }
-
-    // --- Setters ---
 
     public void setId(int id) {
         this.id = id;

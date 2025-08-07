@@ -19,7 +19,6 @@ public class Endereco  {
         this.cep = cep;
     }
 
-    // --- Getters ---
 
     public String getLogradouro() {
         return logradouro;
@@ -49,7 +48,6 @@ public class Endereco  {
         return cep;
     }
 
-    // --- Setters ---
 
     public void setLogradouro(String logradouro) {
         this.logradouro = logradouro;

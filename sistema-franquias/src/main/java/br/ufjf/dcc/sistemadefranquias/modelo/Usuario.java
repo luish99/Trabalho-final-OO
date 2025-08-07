@@ -1,7 +1,10 @@
 
 package br.ufjf.dcc.sistemadefranquias.modelo;
 
-
+//essa e uma super classe que virao as classes dono gerente e vendedor
+//ela contem os atributos comuns a todos os usuarios do sistema
+//como nome cpf email e senha
+//além de um método para validar a senha
 
 public abstract class Usuario  {
     private String nome;

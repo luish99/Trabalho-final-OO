@@ -25,8 +25,8 @@ public class TelaLogin extends JFrame {
             try {
                 sistema.adicionarDono("Dono Padrão", "admin", "admin@franquia.com", "admin");
                 JOptionPane.showMessageDialog(null, "Primeira execução detectada.\nUsuário 'Dono' criado:\nCPF: admin\nSenha: admin", "Boas-vindas", JOptionPane.INFORMATION_MESSAGE);
-            } catch (ValidacaoException e) {
-                // Não deve acontecer
+            } catch (ValidacaoException e) {// nao deve acontecer, mas se acontecer, 
+                //mostra a mensagem de erro
             }
         }
 

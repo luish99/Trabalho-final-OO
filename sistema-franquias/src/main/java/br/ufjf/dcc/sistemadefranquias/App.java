@@ -1,11 +1,11 @@
 // br/ufjf/dcc/sistemadefranquias/App.java
 package br.ufjf.dcc.sistemadefranquias;
 
-import br.ufjf.dcc.sistemadefranquias.controle.CargaDeDados; // 1. IMPORTAR A NOVA CLASSE
+import br.ufjf.dcc.sistemadefranquias.controle.CargaDeDados; 
 import br.ufjf.dcc.sistemadefranquias.controle.Sistema;
 import br.ufjf.dcc.sistemadefranquias.persistencia.Persistencia;
 import br.ufjf.dcc.sistemadefranquias.visao.TelaLogin;
-import java.io.File; // Importar File
+import java.io.File; 
 import java.io.IOException;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -14,10 +14,8 @@ public class App {
     public static void main(String[] args) {
         Sistema sistema = carregarOuCriarSistema();
 
-        // Garante que a GUI seja executada na thread de despacho de eventos
         SwingUtilities.invokeLater(() -> new TelaLogin(sistema));
-
-        // Adiciona um gancho de desligamento para salvar os dados ao fechar
+        //garante que quando fechado ira salvar os dados
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 Persistencia.salvar(sistema);
@@ -30,7 +28,6 @@ public class App {
     }
 
     private static Sistema carregarOuCriarSistema() {
-        // 2. MODIFICAR ESTE MÉTODO
         File arquivoDeDados = new File(Persistencia.ARQUIVO_DADOS);
 
         if (arquivoDeDados.exists()) {
@@ -47,7 +44,7 @@ public class App {
         // Se o arquivo NÃO existe (ou deu erro ao ler), cria um novo sistema e o popula
         System.out.println("Arquivo de dados não encontrado. Criando um novo sistema com dados de teste...");
         Sistema novoSistema = new Sistema();
-        CargaDeDados.popularSistemaComDadosIniciais(novoSistema); // <-- CHAMADA PARA A CARGA DE DADOS
+        CargaDeDados.popularSistemaComDadosIniciais(novoSistema);
         return novoSistema;
     }
 }
